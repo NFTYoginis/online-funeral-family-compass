@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Online Funeral Family Compass — A calm, prioritized list of what to do.</title>
+<meta name="description" content="A free, MIT-licensed Claude specialist for bereaved families using an online funeral service. Returns TODAY / THIS WEEK / MONTH 1 / DON'T-DO-YET. US-seeded.">
+<meta property="og:title" content="Online Funeral Family Compass">
+<meta property="og:description" content="A calm, prioritized list of what to do this week, this month, and what to defer. Free, MIT-licensed.">
+<meta property="og:type" content="website">
+<style>
+  :root {
+    --bg: #faf8f3;
+    --surface: #ffffff;
+    --ink: #1a1a1a;
+    --muted: #5b5b5b;
+    --rule: #e6e2d8;
+    --accent: #8a6a3d;
+    --accent-soft: #f4ece0;
+    --code-bg: #f5f1e8;
+    --tag-bg: #ecead8;
+    --warn: #a14a2a;
+    --ok: #2f7a3c;
+    --shadow: 0 1px 2px rgba(0,0,0,0.04), 0 8px 20px rgba(0,0,0,0.04);
+    --shadow-lift: 0 2px 4px rgba(0,0,0,0.05), 0 16px 32px rgba(0,0,0,0.06);
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.6;
+    font-size: 17px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* NAV */
+  nav.top {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: rgba(250, 248, 243, 0.92);
+    backdrop-filter: saturate(140%) blur(8px);
+    border-bottom: 1px solid var(--rule);
+  }
+  nav.top .nav-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+  }
+  nav.top .brand {
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: -0.005em;
+    text-decoration: none;
+    color: var(--ink);
+  }
+  nav.top .brand span { color: var(--accent); }
+  nav.top ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    gap: 22px;
+    align-items: center;
+  }
+  nav.top a.navlink {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: color 120ms ease;
+  }
+  nav.top a.navlink:hover { color: var(--ink); }
+  nav.top a.cta-nav {
+    background: var(--ink);
+    color: #fff;
+    padding: 7px 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background 120ms ease;
+  }
+  nav.top a.cta-nav:hover { background: var(--accent); color: #fff; }
+  @media (max-width: 640px) {
+    nav.top ul li.hide-sm { display: none; }
+  }
+
+  /* LAYOUT */
+  main { display: block; }
+  section.wrap {
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+  section.wrap.wide { max-width: 1080px; }
+
+  /* HERO */
+  section.hero {
+    padding: 88px 24px 64px;
+    text-align: center;
+  }
+  section.hero .tagline {
+    display: inline-block;
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    padding: 6px 14px;
+    border-radius: 999px;
+    margin-bottom: 28px;
+  }
+  section.hero h1 {
+    font-size: 48px;
+    line-height: 1.1;
+    letter-spacing: -0.025em;
+    margin: 0 auto 24px;
+    max-width: 740px;
+    font-weight: 700;
+  }
+  section.hero p.sub {
+    font-size: 19px;
+    line-height: 1.55;
+    color: var(--muted);
+    margin: 0 auto 36px;
+    max-width: 640px;
+  }
+  .cta-row {
+    display: flex;
+    gap: 14px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  a.btn {
+    display: inline-block;
+    padding: 13px 26px;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    text-decoration: none;
+    letter-spacing: 0.005em;
+    transition: transform 120ms ease, background 120ms ease, border-color 120ms ease;
+  }
+  a.btn.primary { background: var(--ink); color: #fff; }
+  a.btn.primary:hover { background: var(--accent); }
+  a.btn.secondary {
+    background: transparent;
+    color: var(--ink);
+    border: 1px solid var(--rule);
+  }
+  a.btn.secondary:hover { border-color: var(--ink); }
+  a.btn:active { transform: translateY(1px); }
+  @media (max-width: 640px) {
+    section.hero { padding: 56px 24px 48px; }
+    section.hero h1 { font-size: 34px; }
+    section.hero p.sub { font-size: 17px; }
+  }
+
+  /* SECTION HEADER */
+  .section-header {
+    margin: 88px 0 32px;
+    text-align: center;
+  }
+  .section-header .eyebrow {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 14px;
+  }
+  .section-header h2 {
+    font-size: 34px;
+    line-height: 1.18;
+    letter-spacing: -0.02em;
+    margin: 0 0 14px;
+  }
+  .section-header p.lede {
+    font-size: 17px;
+    color: var(--muted);
+    margin: 0 auto;
+    max-width: 620px;
+    line-height: 1.55;
+  }
+  @media (max-width: 640px) {
+    .section-header { margin: 64px 0 28px; }
+    .section-header h2 { font-size: 26px; }
+  }
+
+  /* TRIAGE COLUMNS */
+  .columns {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-top: 32px;
+  }
+  .column {
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 12px;
+    padding: 22px 20px;
+    box-shadow: var(--shadow);
+  }
+  .column .col-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 6px;
+  }
+  .column h3 {
+    font-size: 17px;
+    margin: 0 0 8px;
+    letter-spacing: -0.01em;
+  }
+  .column .time {
+    font-size: 13px;
+    color: var(--muted);
+    margin: 0 0 14px;
+  }
+  .column ul {
+    margin: 0;
+    padding-left: 18px;
+    font-size: 14px;
+    color: var(--ink);
+    line-height: 1.5;
+  }
+  .column ul li { margin-bottom: 8px; }
+  .column.defer { background: var(--accent-soft); }
+  @media (max-width: 900px) {
+    .columns { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 520px) {
+    .columns { grid-template-columns: 1fr; }
+  }
+
+  /* JOBS TABLE */
+  table.jobs {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 32px;
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+  }
+  table.jobs th, table.jobs td {
+    text-align: left;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--rule);
+    vertical-align: top;
+    font-size: 15px;
+  }
+  table.jobs tr:last-child td { border-bottom: 0; }
+  table.jobs th {
+    background: var(--code-bg);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    font-weight: 700;
+  }
+  table.jobs td:first-child { font-weight: 700; width: 26%; }
+  @media (max-width: 720px) {
+    table.jobs th:nth-child(2), table.jobs td:nth-child(2) { display: none; }
+  }
+
+  /* SAMPLE OUTPUT */
+  .sample {
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 12px;
+    padding: 28px 30px;
+    box-shadow: var(--shadow);
+    margin-top: 32px;
+  }
+  .sample .sample-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 18px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .sample .label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+  .sample .user-line {
+    background: var(--code-bg);
+    border-left: 3px solid var(--accent);
+    padding: 12px 16px;
+    margin: 0 0 22px;
+    font-style: italic;
+    color: var(--ink);
+    border-radius: 0 6px 6px 0;
+    font-size: 15px;
+  }
+  .sample .reply h4 {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 18px 0 8px;
+  }
+  .sample .reply ul {
+    margin: 0;
+    padding-left: 20px;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+  .sample .reply ul li { margin-bottom: 8px; }
+  .sample .reply .stop {
+    background: var(--accent-soft);
+    border-left: 3px solid var(--warn);
+    padding: 10px 14px;
+    margin: 14px 0;
+    font-size: 14px;
+    border-radius: 0 6px 6px 0;
+  }
+  .sample .reply .stop strong { color: var(--warn); }
+
+  /* PROOF / TODO */
+  .proof-todo {
+    background: var(--accent-soft);
+    border: 1px dashed var(--accent);
+    border-radius: 12px;
+    padding: 28px 30px;
+    margin-top: 32px;
+    color: var(--ink);
+  }
+  .proof-todo h3 {
+    font-size: 15px;
+    margin: 0 0 8px;
+    color: var(--accent);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .proof-todo p { margin: 0 0 8px; font-size: 15px; }
+  .proof-todo p:last-child { margin-bottom: 0; }
+
+  /* SETUP STEPS */
+  .steps {
+    margin-top: 32px;
+    counter-reset: step-counter;
+  }
+  .step {
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    padding: 22px 24px 22px 64px;
+    margin-bottom: 14px;
+    position: relative;
+    box-shadow: var(--shadow);
+  }
+  .step::before {
+    counter-increment: step-counter;
+    content: counter(step-counter);
+    position: absolute;
+    left: 20px;
+    top: 22px;
+    width: 30px;
+    height: 30px;
+    background: var(--ink);
+    color: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 14px;
+  }
+  .step h3 {
+    font-size: 16px;
+    margin: 0 0 6px;
+    letter-spacing: -0.005em;
+  }
+  .step p {
+    margin: 0;
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.55;
+  }
+  .step code {
+    background: var(--code-bg);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 13px;
+    color: var(--ink);
+  }
+
+  /* FAQ */
+  details.faq {
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    padding: 18px 22px;
+    margin-bottom: 12px;
+    box-shadow: var(--shadow);
+  }
+  details.faq summary {
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 16px;
+    list-style: none;
+    color: var(--ink);
+    position: relative;
+    padding-right: 30px;
+  }
+  details.faq summary::-webkit-details-marker { display: none; }
+  details.faq summary::after {
+    content: "+";
+    position: absolute;
+    right: 0;
+    top: 0;
+    font-weight: 400;
+    color: var(--accent);
+    font-size: 22px;
+    line-height: 1;
+  }
+  details.faq[open] summary::after { content: "−"; }
+  details.faq p {
+    margin: 14px 0 0;
+    color: var(--muted);
+    font-size: 15px;
+    line-height: 1.6;
+  }
+  details.faq ul {
+    margin: 14px 0 0;
+    padding-left: 22px;
+    color: var(--muted);
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  /* FOOTER */
+  footer {
+    margin-top: 96px;
+    padding: 36px 24px 56px;
+    border-top: 1px solid var(--rule);
+    background: var(--bg);
+  }
+  footer .foot-inner {
+    max-width: 1080px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 22px;
+    font-size: 14px;
+    color: var(--muted);
+  }
+  footer a {
+    color: var(--muted);
+    text-decoration: none;
+    border-bottom: 1px solid var(--rule);
+    transition: color 120ms ease, border-color 120ms ease;
+  }
+  footer a:hover {
+    color: var(--ink);
+    border-bottom-color: var(--ink);
+  }
+  footer .license { font-size: 13px; }
+</style>
+</head>
+<body>
+
+<nav class="top">
+  <div class="nav-inner">
+    <a class="brand" href="#top">Online Funeral Family <span>Compass</span></a>
+    <ul>
+      <li class="hide-sm"><a class="navlink" href="#what-it-does">What it does</a></li>
+      <li class="hide-sm"><a class="navlink" href="#sample">Sample</a></li>
+      <li class="hide-sm"><a class="navlink" href="#setup">Setup</a></li>
+      <li class="hide-sm"><a class="navlink" href="#faq">FAQ</a></li>
+      <li><a class="cta-nav" href="https://github.com/NFTYoginis/online-funeral-family-compass" id="repo-link-nav">GitHub</a></li>
+    </ul>
+  </div>
+</nav>
+
+<main id="top">
+
+  <section class="hero">
+    <div class="tagline">For bereaved families using an online funeral service</div>
+    <h1>A calm, prioritized list of what to do — today, this week, this month, and not yet.</h1>
+    <p class="sub">A free, MIT-licensed Claude specialist that sorts the administrative load in the week after a death. Not therapy. Not legal advice. A written list, in minutes, in the language of admin.</p>
+    <div class="cta-row">
+      <a class="btn primary" href="#setup">Set it up (5 minutes)</a>
+      <a class="btn secondary" href="#sample">See a sample</a>
+    </div>
+  </section>
+
+  <section class="wrap wide" id="what-it-does">
+    <div class="section-header">
+      <div class="eyebrow">What it does</div>
+      <h2>One four-column list. Every time.</h2>
+      <p class="lede">You don't read paragraphs. You read a list. The compass sorts every decision into one of four columns by urgency. The last column — defer — is the one that lifts the load.</p>
+    </div>
+
+    <div class="columns">
+      <div class="column">
+        <div class="col-label">Column 1</div>
+        <h3>TODAY</h3>
+        <p class="time">Next 24 hours</p>
+        <ul>
+          <li>Disposition method confirmation</li>
+          <li>Cremation authorization (state waiting periods)</li>
+          <li>Social Security notification</li>
+          <li>Anything irreversible the family is being asked to sign</li>
+        </ul>
+      </div>
+      <div class="column">
+        <div class="col-label">Column 2</div>
+        <h3>THIS WEEK</h3>
+        <p class="time">Days 2–7</p>
+        <ul>
+          <li>Memorial page setup on the online service</li>
+          <li>Obituary publication</li>
+          <li>Document gathering</li>
+          <li>Service planning (in-person and livestream)</li>
+          <li>Employer notification</li>
+        </ul>
+      </div>
+      <div class="column">
+        <div class="col-label">Column 3</div>
+        <h3>MONTH 1</h3>
+        <p class="time">Days 8–30</p>
+        <ul>
+          <li>Order 10–12 certified death certificates</li>
+          <li>Account-closure sequencing</li>
+          <li>Will filing (where required by state)</li>
+          <li>Acknowledgments and thank-you handling</li>
+          <li>Probate attorney consultation booking</li>
+        </ul>
+      </div>
+      <div class="column defer">
+        <div class="col-label">Column 4</div>
+        <h3>DON'T-DO-YET</h3>
+        <p class="time">Defer 30–90 days</p>
+        <ul>
+          <li>Beneficiary waivers and settlement offers</li>
+          <li>Disposal of personal effects</li>
+          <li>Large irrevocable real-estate or vehicle decisions</li>
+          <li>Insurance "express release" forms</li>
+          <li>Contested-will questions</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="section-header">
+      <div class="eyebrow">In-chat capabilities</div>
+      <h2>Five follow-on jobs after the first list</h2>
+      <p class="lede">After the four-column triage, the same chat handles the work that follows.</p>
+    </div>
+
+    <table class="jobs">
+      <thead>
+        <tr>
+          <th>Job</th>
+          <th>What it does</th>
+          <th>When it fits</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Letter interpretation</td>
+          <td>Read a bank, insurer, employer, court, or funeral home letter. Surface who sent it, what they want, real deadline vs. implied urgency, and which column it belongs in.</td>
+          <td>Whenever the family receives correspondence they don't fully understand.</td>
+        </tr>
+        <tr>
+          <td>Pre-signature review</td>
+          <td>Before the family signs anything (funeral contract, beneficiary form, release), flag what's irreversible and whether the document belongs in DON'T-DO-YET.</td>
+          <td>At every signing moment in the first month.</td>
+        </tr>
+        <tr>
+          <td>Status snapshot</td>
+          <td>Produce a DONE / IN PROGRESS / WAITING ON / DON'T-DO-YET / NEXT 7 DAYS summary at any point in the chat.</td>
+          <td>For family coordination, attorney handoff, or just to see where you are.</td>
+        </tr>
+        <tr>
+          <td>Letter drafting</td>
+          <td>Draft a short email or letter to a specific institution — employer, bank, insurer, funeral home, vital records office — with bracketed variables for personalization.</td>
+          <td>When the family needs to send notification letters and can't face writing them.</td>
+        </tr>
+        <tr>
+          <td>Memorial-page guidance</td>
+          <td>Walk through the specific online funeral service in use (Forever Missed, Ever Loved, Tribute Archive, GatheringUs, Legacy.com) — what's free vs. paid, what privacy controls exist, what to publish and what to defer.</td>
+          <td>During week 1 setup of the memorial page.</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="wrap" id="sample">
+    <div class="section-header">
+      <div class="eyebrow">Sample output</div>
+      <h2>What the compass actually returns</h2>
+      <p class="lede">A real intake from <code>examples.md</code>. The exact output shape, copy unchanged.</p>
+    </div>
+
+    <div class="sample">
+      <div class="sample-head">
+        <span class="label">Family intake</span>
+      </div>
+      <div class="user-line">
+        I lost my mother on May 8. We are in California. We are using Ever Loved. Where do I start?
+      </div>
+
+      <div class="reply">
+        <p><strong>I'm sorry.</strong></p>
+        <p>Intake confirmed: California, using Ever Loved, mother passed May 8. I have what I need.</p>
+
+        <h4>TODAY (next 24 hours)</h4>
+        <ul>
+          <li><strong>Confirm disposition method</strong> with the funeral home. If you haven't signed anything yet, ask for the General Price List in writing before signing. (Reference: <code>reference/us/02-ftc-funeral-rule.md</code>)</li>
+          <li><strong>Authorize cremation</strong> if that's the choice. California requires a 48-hour waiting period from time of death before cremation. The funeral home will give you the form. (Reference: <code>reference/us/01-direct-cremation-vs-traditional.md</code>)</li>
+          <li><strong>Notify Social Security:</strong> call 1-800-772-1213. The funeral director usually handles this — confirm with them.</li>
+        </ul>
+
+        <h4>THIS WEEK (days 2–7)</h4>
+        <ul>
+          <li><strong>Set up the Ever Loved memorial page</strong> — free tier covers tribute page, photos, tributes from visitors. Choose: public, unlisted, or password-protected. (Reference: <code>reference/us/03-memorial-obituary-publishing.md</code>)</li>
+          <li><strong>Publish the obituary</strong> — SF Chronicle, LA Times, or San Diego Union-Tribune (~$200–$800), Legacy.com cross-publishes from most newspapers, Ever Loved hosts a free version with no length limit.</li>
+          <li><strong>Coordinate the service</strong> — if streaming, see <code>reference/us/04-virtual-memorial-service.md</code>. Most families use Zoom or the funeral home's streaming service.</li>
+        </ul>
+
+        <h4>MONTH 1 (days 8–30)</h4>
+        <ul>
+          <li><strong>Order 10–12 certified death certificates.</strong> California: order through CDPH Vital Records or VitalChek (~$24/certificate plus service fee). Faster: through the county recorder's office where she died.</li>
+          <li><strong>Begin account-closure sequencing.</strong> Order: banks → brokerages → credit cards → utilities → subscriptions.</li>
+        </ul>
+
+        <h4>DON'T-DO-YET (defer 30–90 days)</h4>
+        <div class="stop">
+          <strong>STOP</strong> before signing any beneficiary waiver, life-insurance settlement offer, or "express release." These are irreversible. Wait for the probate attorney conversation in month 2.
+        </div>
+        <ul>
+          <li><strong>Don't open probate yourself.</strong> California has a small-estate option ($184,500 limit, Probate Code §13100) — ask an attorney whether you qualify.</li>
+          <li><strong>Don't dispose of personal effects.</strong> Photograph, box, label, store. Two months from now you'll be glad.</li>
+          <li><strong>Don't pay non-essential bills</strong> from her accounts after death without estate authority.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap">
+    <!-- TODO: operator — add real distribution-partner testimonials and family-side feedback after cold-test with an actual online funeral service. Do NOT invent testimonials. -->
+    <div class="proof-todo">
+      <h3>Proof block — placeholder</h3>
+      <p>This compass ships at v1.0 with structurally-valid + domain-accurate content, US-seeded, on 2026-05-12. <strong>Real testimonials and engagement metrics will appear here after a cold test with an actual online funeral service distribution partner.</strong></p>
+      <p>If you are an online funeral service interested in distributing this compass to your families — or a bereaved family who used it — feedback to the repo issues is welcome.</p>
+    </div>
+  </section>
+
+  <section class="wrap" id="setup">
+    <div class="section-header">
+      <div class="eyebrow">Setup</div>
+      <h2>About 5 minutes, one time.</h2>
+      <p class="lede">If you can use Claude in a web browser, you can set this up. No install, no API key, no monthly cost beyond your Claude subscription.</p>
+    </div>
+
+    <div class="steps">
+      <div class="step">
+        <h3>Clone or download the repository</h3>
+        <p>From GitHub: <code>git clone</code> the repo, or click the green Code button and download the ZIP. You only need the markdown files.</p>
+      </div>
+      <div class="step">
+        <h3>Create a new Claude Project</h3>
+        <p>Go to <code>claude.ai/projects</code>, click New Project, give it a name like "Funeral Family Compass."</p>
+      </div>
+      <div class="step">
+        <h3>Upload the files as Project Knowledge</h3>
+        <p>Upload <code>identity.md</code>, <code>rules.md</code>, <code>examples.md</code>, <code>reference/README.md</code>, and all six files under <code>reference/us/</code>. You can drag and drop.</p>
+      </div>
+      <div class="step">
+        <h3>Open a new chat in the project</h3>
+        <p>The compass is now loaded. Any chat in this project uses the specialist's identity, rules, examples, and reference.</p>
+      </div>
+      <div class="step">
+        <h3>Paste the first-run prompt</h3>
+        <p><code>I lost my [relationship] on [date]. We are in [US state]. We are using [online funeral service]. Where do I start?</code></p>
+        <p>The compass replies with a four-column triage. Follow-up prompts in the same chat can ask for letter interpretation, pre-signature review, status snapshots, letter drafting, or memorial-page guidance.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap" id="faq">
+    <div class="section-header">
+      <div class="eyebrow">FAQ</div>
+      <h2>Common questions</h2>
+    </div>
+
+    <details class="faq">
+      <summary>Why isn't this grief counseling?</summary>
+      <p>Because the work of administrative triage and the work of grief are different. A compass that tries to do both will do neither well. This compass sorts the load — what to sign, what to defer, what to call, what to refuse — in the voice of admin. For grief, the compass points to real resources: 988 (US suicide and crisis lifeline), Crisis Text Line (text HOME to 741741), GriefShare, the Hospice Foundation of America, and your physician's referral to a grief-specialist therapist.</p>
+    </details>
+
+    <details class="faq">
+      <summary>Why US-only at first ship?</summary>
+      <p>Funeral law, vital-records processes, online-service availability, and consumer-rights protections differ materially by country. A compass populated for the US that pretends to answer for the UK, India, or Mexico would produce wrong answers for grieving families. The architecture is country-extensible — see <code>reference/README.md</code> in the repo — but population happens one country at a time, driven by a real user need with a local validation partner. Building all-of-everywhere preemptively creates stale content; building responsively keeps the bar honest.</p>
+    </details>
+
+    <details class="faq">
+      <summary>Can our online funeral service distribute this to our families?</summary>
+      <p>Yes. MIT-licensed, no attribution required (though appreciated). You can brand-overlay the Project name and prompts to match your service's voice. The compass refers families back to your service for service-specific questions — it doesn't recommend competing platforms.</p>
+    </details>
+
+    <details class="faq">
+      <summary>Why no specific funeral home prices?</summary>
+      <p>Because prices vary 2–3x between funeral homes in the same metro area for identical services, and quoting a specific price would mislead families. The compass points families to their federal right under the FTC Funeral Rule: every funeral home must provide a General Price List in writing, on request, and prices by phone. Comparison shopping is a Funeral Rule right.</p>
+    </details>
+
+    <details class="faq">
+      <summary>What does it refuse?</summary>
+      <ul>
+        <li>Legal advice (refers to probate attorney in the deceased's state)</li>
+        <li>Medical advice including cause-of-death documentation (refers to physician or medical examiner)</li>
+        <li>Grief counseling (refers to crisis lines and grief-specialist therapists)</li>
+        <li>Specific funeral home pricing quotes (refers to the FTC Funeral Rule and the funeral home's General Price List)</li>
+        <li>Non-US jurisdiction questions (refers to the country's consumer-protection / vital-records / consulate)</li>
+      </ul>
+      <p>Each refusal lands with an exact pointer to who does that work, not a wall.</p>
+    </details>
+
+    <details class="faq">
+      <summary>What does the compass cost?</summary>
+      <p>The compass itself is free, MIT-licensed. The cost is your Claude subscription (free tier exists; paid tier varies). There is no third-party SaaS, no API key, no recurring fee added by this compass.</p>
+    </details>
+
+    <details class="faq">
+      <summary>I'm a death-tech founder / online funeral service operator / customer-success team member. Is this for me?</summary>
+      <p>This specific compass is shaped for the bereaved family as the end-user. The same architecture (folder of markdown files loaded as Claude Project Knowledge) can produce a different specialist for the operator side — a coach-the-family specialist, a roadmap-and-decision-support specialist for founders, a customer-success scripts specialist. Those are different builds. Open a GitHub issue if you want to talk shape.</p>
+    </details>
+
+    <details class="faq">
+      <summary>What's the architecture for adding another country?</summary>
+      <p>The <code>reference/</code> folder is country-keyed. Adding a country means copying <code>reference/_template-country/</code> to <code>reference/[iso-code]/</code>, populating the six standard files with country-specific content, and having a local funeral director or funeral-consumer NGO review before merging. The <code>rules.md</code> empty-country handler is already in place — once <code>reference/uk/</code> exists, UK families will get UK-grounded output instead of a refusal-with-pointer.</p>
+    </details>
+  </section>
+
+</main>
+
+<footer>
+  <div class="foot-inner">
+    <div>
+      <strong>Online Funeral Family Compass</strong> — v1.0, 2026-05-12<br>
+      <span class="license">MIT-licensed. Free to use, modify, and distribute.</span>
+    </div>
+    <div>
+      <a href="https://github.com/NFTYoginis/online-funeral-family-compass" id="repo-link-foot">View on GitHub</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
