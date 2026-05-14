@@ -93,7 +93,7 @@ If `reference/<country>/` does not exist for the country the family names:
 3. Offer to proceed with **universal output only** (refusal gates, sequencing principles, what-to-ask-the-funeral-home) — **only if the family explicitly confirms** they understand the country-specific layer is missing and they want the universal scaffolding anyway.
 4. Do **not** silently produce US-content output for a non-US family.
 
-This pattern is adapted from Realtor Copilot v2's empty-region handler (`specialist/rules.md` in that repo) — same shape, different domain.
+This pattern is adapted from Your Market Realtor's empty-region handler (`specialist/rules.md` in that repo) — same shape, different domain.
 
 ## Routing — single-job specialist
 

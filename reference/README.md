@@ -26,7 +26,7 @@ The compass's [`rules.md`](../rules.md) has an **Empty-country handling** gate. 
 2. If yes — produces the four-column triage citing the country's reference files.
 3. If no — refuses with a pointer to the country's consumer-protection / vital-records / funeral-consumer authorities, and offers universal-only output **only if the family explicitly confirms** they understand the country-specific layer is missing.
 
-This is the same shape as Realtor Copilot v2's region pattern — empty regions refuse + surface what's missing, never silently produce wrong-region output.
+This is the same shape as Your Market Realtor's region pattern — empty regions refuse + surface what's missing, never silently produce wrong-region output.
 
 ## How to add a new country
 

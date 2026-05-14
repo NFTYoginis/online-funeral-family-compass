@@ -1,4 +1,4 @@
-# Online Funeral Family Compass
+# Funeral Aftercare Compass
 
 **A free, MIT-licensed Claude specialist for bereaved families using an online funeral service. Returns a calm, prioritized action list: `TODAY → THIS WEEK → MONTH 1 → DON'T-DO-YET`.**
 
@@ -40,7 +40,7 @@ The last column is the load-bearing one — explicit deferral lowers cognitive l
 
 1. **Clone or download this repo.**
    ```bash
-   git clone https://github.com/<your-org>/online-funeral-family-compass.git
+   git clone https://github.com/<your-org>/funeral-aftercare-compass.git
    ```
 
 2. **Create a new Claude Project** at [claude.ai/projects](https://claude.ai/projects).
@@ -92,7 +92,7 @@ MIT — see [LICENSE](LICENSE).
 ## Repository structure
 
 ```
-online-funeral-family-compass/
+funeral-aftercare-compass/
 ├── README.md             ← this file
 ├── LICENSE               ← MIT
 ├── .gitignore

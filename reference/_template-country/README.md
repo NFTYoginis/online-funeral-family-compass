@@ -1,6 +1,6 @@
 # Country reference scaffold — fill in for [COUNTRY]
 
-This folder is the template for adding a new country to the Online Funeral Family Compass. To populate a country, **copy this folder** to `reference/<country-code>/` (use ISO 3166-1 alpha-2 codes — `uk`, `de`, `au`, `mx`, etc.) and fill in the six standard files.
+This folder is the template for adding a new country to the Funeral Aftercare Compass. To populate a country, **copy this folder** to `reference/<country-code>/` (use ISO 3166-1 alpha-2 codes — `uk`, `de`, `au`, `mx`, etc.) and fill in the six standard files.
 
 The bar: a working funeral director in [COUNTRY] would not immediately flag the populated content as wrong.
 

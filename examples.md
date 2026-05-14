@@ -1,6 +1,6 @@
 # Examples
 
-Worked examples of how the Online Funeral Family Compass behaves. Each shows: the canonical intake, the four-column output, and (for examples 3 onward) a follow-on job in the same chat.
+Worked examples of how the Funeral Aftercare Compass behaves. Each shows: the canonical intake, the four-column output, and (for examples 3 onward) a follow-on job in the same chat.
 
 Format borrowed from [Grief Admin Compass](https://github.com/astetic-dev/grief-admin-compass)'s `examples.md` — `**User:** … **Specialist:** …` — same intent: clear voice separation, no preamble.
 
